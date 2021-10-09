@@ -22,15 +22,15 @@ using namespace std;
 vector<double> sum_m2;
 double umbralCambio = 10;
 
-string sFilePath_m2 = "/Users/mipapamedijo/PROYECTOS/PROGRAMAS/AnimationMetrics/03_Shots/"+movieName+"/";
+string sFilePath_m2 = "/Users/mipapamedijo/Projects/PROGRAMAS/AnimationMetrics/03_Shots/"+movieName+"/";
 string shotsInfoPath_m2;
-string sxmlPath_m2 = "/Users/mipapamedijo/PROYECTOS/PROGRAMAS/AnimationMetrics/00_Data_Output/"+movieName+"/Shots.xml";
+string sxmlPath_m2 = "/Users/mipapamedijo/Projects/PROGRAMAS/AnimationMetrics/00_Data_Output/"+movieName+"/Shots.xml";
 
 string winShot_m2 = "Shot Detection";
 
 void detectShot_m2(Mat frameA, Mat frameB, int actFrame){
     
-    shotsInfoPath_m2 = "/Users/mipapamedijo/PROYECTOS/PROGRAMAS/AnimationMetrics/03_Shots/frame_"+to_string(actFrame)+".jpg";
+    shotsInfoPath_m2 = "/Users/mipapamedijo/Projects/PROGRAMAS/AnimationMetrics/03_Shots/frame_"+to_string(actFrame)+".jpg";
     
     if (actFrame<=3){
          imwrite(shotsInfoPath_m2, frameB);

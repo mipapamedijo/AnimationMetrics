@@ -79,7 +79,7 @@ void drawShotDistribution( vector <int> shotsList){
     String ShotDistWin = "ShotDist - "+movieName;
     
     imshow(ShotDistWin, shotDistPlot);
-    String shotsMapPath = "/Users/mipapamedijo/PROYECTOS/PROGRAMAS/AnimationMetrics/03_Shots/"+movieName+"_dist_map.jpg";
+    String shotsMapPath = "/Users/mipapamedijo/PROJECTS_local/PROGRAMAS/AnimationMetrics/03_Shots/"+movieName+"_dist_map.jpg";
     imwrite(shotsMapPath, shotDistPlot);
     
 }
@@ -91,7 +91,7 @@ void ShotFramesCount(){
     vector <int> shotFramesVec;
     vector <string> ShotFiles;
     
-    Shot_Dir = "/Users/mipapamedijo/PROYECTOS/PROGRAMAS/AnimationMetrics/03_Shots/"+movieName+"_list.csv";
+    Shot_Dir = "/Users/mipapamedijo/PROJECTS_local/PROGRAMAS/AnimationMetrics/03_Shots/"+movieName+"_list.csv";
 
     
     cout << "\n" << "TIME METHOD LOADED! \n";
@@ -122,7 +122,7 @@ void ShotFramesCount(){
     }
 
     
-    String csvPath = "/Users/mipapamedijo/PROYECTOS/PROGRAMAS/AnimationMetrics/03_Shots/"+movieName+"_time.csv";
+    String csvPath = "/Users/mipapamedijo/PROJECTS_local/PROGRAMAS/AnimationMetrics/03_Shots/"+movieName+"_time.csv";
     cout<<"\n Escribiendo en: "<<csvPath<<" \n";
     ofstream tvsFile;
     try{

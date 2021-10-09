@@ -51,9 +51,9 @@ int width;
 Mat frameGrayA,frameGrayB;
 Mat histTotal(400, 900, CV_8UC3, Scalar::all(255));
 
-string sFilePath = "/Users/mipapamedijo/PROYECTOS/PROGRAMAS/AnimationMetrics/03_Shots/"+movieName+"/";
+string sFilePath = "/Users/mipapamedijo/PROJECTS_local/PROGRAMAS/AnimationMetrics/03_Shots/"+movieName+"/";
 string shotsInfoPath;
-string sxmlPath = "/Users/mipapamedijo/PROYECTOS/PROGRAMAS/AnimationMetrics/00_Data_Output/"+movieName+"/Shots.xml";
+string sxmlPath = "/Users/mipapamedijo/PROJECTS_local/PROGRAMAS/AnimationMetrics/00_Data_Output/"+movieName+"/Shots.xml";
 
 FileStorage sxmlFile;
 string winShot = "Shot Detection";
@@ -225,7 +225,7 @@ void detectShot(Mat frameA, Mat frameB, int frameAct, int totalFrames){
                     cout << " \n ************************** \n";
                     cout << "G > TH - CORTE en " << frameAct << "\n";
                     cout << "************************** \n";
-                    shotsInfoPath = "/Users/mipapamedijo/PROYECTOS/PROGRAMAS/AnimationMetrics/03_Shots/frame_"+to_string(frameAct)+".jpg";
+                    shotsInfoPath = "/Users/mipapamedijo/Projects/PROGRAMAS/AnimationMetrics/03_Shots/frame_"+to_string(frameAct)+".jpg";
                     imwrite(shotsInfoPath, frameB);
                     try{
                         sxmlFile.open(sxmlPath, FileStorage::APPEND);
@@ -252,7 +252,7 @@ void detectShot(Mat frameA, Mat frameB, int frameAct, int totalFrames){
        if ((rightGradient > threshold_value) && ( leftGradient  > threshold_value)){
             cout << "************************** \n";
             cout << "G > TH - CORTE en " << frameAct << "\n";
-           shotsInfoPath = "/Users/mipapamedijo/PROYECTOS/PROGRAMAS/AnimationMetrics/03_Shots/frame_"+to_string(frameAct)+".jpg";
+           shotsInfoPath = "/Users/mipapamedijo/PROJECTS_local/PROGRAMAS/AnimationMetrics/03_Shots/frame_"+to_string(frameAct)+".jpg";
            imwrite(shotsInfoPath, frameB);
             cout << "************************** \n";
             
@@ -260,7 +260,7 @@ void detectShot(Mat frameA, Mat frameB, int frameAct, int totalFrames){
             else if (( rightGradient > threshold_value ) && ( leftGradient > ( threshold_value/4) )) {
                 cout << "************************** \n";
                 cout << "RG > TH && LG > TH/4 - CORTE en " << frameAct << "\n";
-                shotsInfoPath = "/Users/mipapamedijo/PROYECTOS/PROGRAMAS/AnimationMetrics/03_Shots/frame_"+to_string(frameAct)+".jpg";
+                shotsInfoPath = "/Users/mipapamedijo/PROJECTS_local/PROGRAMAS/AnimationMetrics/03_Shots/frame_"+to_string(frameAct)+".jpg";
                 imwrite(shotsInfoPath, frameB);
                 cout << "************************** \n";
             }

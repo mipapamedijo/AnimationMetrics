@@ -14,6 +14,9 @@ using namespace cv;
 
 extern String movieName;
 extern String movieExt;
+extern String corpus;
+extern String mainLocation;
+extern String dataFolder;
 extern int totalFrames;
 
 //Declaration

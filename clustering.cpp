@@ -6,14 +6,20 @@
 //  Created by Mipapamedijo on 05/02/18.
 //  2018 No Budget Animation S de RL de CV.
 
-
 #include <iostream>
+#include <string>
+#include <sstream>
+#include <fstream>
 #include <opencv2/opencv.hpp>
-#include <opencv2/highgui.hpp>
-#include <opencv2/imgproc.hpp>
-#include <opencv2/core.hpp>
-#include <opencv2/plot.hpp>
+#include <highgui.hpp>
+#include <imgproc.hpp>
+#include <core.hpp>
+#include <ocl.hpp>
+#include <plot.hpp>
 #include "metrics.h"
+#include <sys/stat.h>
+#include <sys/types.h>
+
 
 using namespace cv;
 using namespace std;
@@ -37,7 +43,7 @@ void polarTrans(Mat colorMap){
     Mat polarColorMap;
     Point2f center((colorMap.cols/2, colorMap.rows/2),colorMap.rows/2);
     double mVal = colorMap.cols / log(180);
-    logPolar(colorMap, polarColorMap, center, mVal, CV_INTER_LINEAR + WARP_FILL_OUTLIERS);
+    logPolar(colorMap, polarColorMap, center, mVal,INTER_LINEAR + WARP_FILL_OUTLIERS);
     
     imshow("COLOR POLAR MAP", polarColorMap);
 }
@@ -72,7 +78,7 @@ Vec3f RgbToHsv(Scalar rgb) {
     r=rgb[2];
     g=rgb[1];
     b=rgb[0];
-   float min, max, delta;
+    float min, max, delta;
     
     min = std::min(std::min(b, g), r);
     max = std::max(std::max(b, g), r);
@@ -105,7 +111,7 @@ Vec3f RgbToHsv(Scalar rgb) {
     }
     cout << "\n RGB TO HSV: " << hsv << "\n";
     
-    String csvPathHSV = "/Users/mipapamedijo/PROYECTOS/PROGRAMAS/AnimationMetrics/00_Data_Output/CSV/"+movieName+"_ColorData-HSV.csv";
+    String csvPathHSV = dataFolder+"00_Data_Output/CSV/"+movieName+"_ColorData-HSV.csv";
     
     ofstream tvsFile;
     try{
@@ -193,8 +199,8 @@ vector<Point> plotHSVDistances (Vec3f hsv){
     if (posX < 0){
         posX = 0;
     }
-        posV = 100+posV;
-
+    posV = 100+posV;
+    
     
     cout << "\n POSX: "<< posX <<", POSS: "<< posS <<", POSV: "<< posV <<"\n";
     
@@ -211,7 +217,7 @@ Mat setPlotMat(){
     Mat chromaHSV(200,360,CV_8UC3, Scalar::all(0));
     
     int div = 1;
-
+    
     for (int i=0; i<360; i++){
         for (int j=0; j<100; j++){
             
@@ -220,20 +226,20 @@ Mat setPlotMat(){
             Scalar color = HsvToBgr(c);
             
             //cout << "\n COLOR HSV A RGB:" << color << " ! \n";
-            rectangle(chromaHSV, Point( div*i, j ), Point((div*i)+div, j+1), color,CV_FILLED,10);
+            rectangle(chromaHSV, Point( div*i, j ), Point((div*i)+div, j+1), color,FILLED,10);
             
-                }
-            }
-    
-        for (int i=0; i<360; i++){
-            for (int k=0; k<100; k++){
-             
-        Vec3f c(i,100,k);
-        Scalar color = HsvToBgr(c);
-        //cout << "\n COLOR HSV A RGB:" << color << " ! \n";
-            rectangle(chromaHSV, Point( div*i, 100+k ), Point((div*i)+div, (100+k)+1), color,CV_FILLED,10);
-            }
         }
+    }
+    
+    for (int i=0; i<360; i++){
+        for (int k=0; k<100; k++){
+            
+            Vec3f c(i,100,k);
+            Scalar color = HsvToBgr(c);
+            //cout << "\n COLOR HSV A RGB:" << color << " ! \n";
+            rectangle(chromaHSV, Point( div*i, 100+k ), Point((div*i)+div, (100+k)+1), color,FILLED,10);
+        }
+    }
     
     chromaHSV.copyTo(p);
     return p;
@@ -253,7 +259,7 @@ void updatePlot(){
     
     //polarTrans(p);
     
-    String plotPath ="/Users/mipapamedijo/PROYECTOS/PROGRAMAS/AnimationMetrics/04_ColorMaps/"+movieName+"_plot.jpg";
+    String plotPath =dataFolder+"Maps/"+movieName+"_plot.jpg";
     
     imwrite(plotPath, p);
 }
@@ -264,21 +270,21 @@ Mat drawColors(Scalar color[], int limite) {
     int i=0;
     Mat array = Mat::ones(y,x,CV_8UC3);
     int div = (x/limite);
-
+    
     for (i=0; i<limite; i++){
-    cout <<"Color recibido: "<< color[i] << ". \n";
-    //cout <<"Color en arreglo: "<< array << ". \n";
-    cout <<"Dibujando color número "<< i+1 << " de "<<limite<<" en "<<div*i<<" . \n";
-    rectangle(array, Point( div*i, 0 ), Point((div*i)+div, 20), color[i],CV_FILLED,10);
+        cout <<"Color recibido: "<< color[i] << ". \n";
+        //cout <<"Color en arreglo: "<< array << ". \n";
+        cout <<"Dibujando color número "<< i+1 << " de "<<limite<<" en "<<div*i<<" . \n";
+        rectangle(array, Point( div*i, 0 ), Point((div*i)+div, 20), color[i],FILLED,10);
     }
- /*   try{
-    imwrite(sImagePath, array);
-    }
-    catch (runtime_error& ex){
-        cout << "Error al escribir la información de color.  \n";
-        return array;
-    }
-  */
+    /*   try{
+     imwrite(sImagePath, array);
+     }
+     catch (runtime_error& ex){
+     cout << "Error al escribir la información de color.  \n";
+     return array;
+     }
+     */
     return array;
 }
 
@@ -290,15 +296,16 @@ void colorMap(Scalar color[], int limite){
     cout << "\n LIMITE DE MAPA: " << limite << "\n";
     
     allColors.push_back(color[0]);
-    int i = allColors.size();
-    
-    cout << "\n VECTOR ALL COLORS: " << i << "\n";
-
-        for (int j = 0; j<allColors.size(); j++){
-            rectangle(colorMapMat, Point( (i), 0 ), Point( ((i)+1), colorMapMat.rows), allColors.at(j),CV_FILLED);
-        }
-    
     int colorMapSizeW = 1920;
+    int i = allColors.size();
+    int rectIncrement = colorMapMat.cols/colorMapSizeW;
+    cout << "\n rectIncrement: " << rectIncrement << "\n";
+    cout << "\n VECTOR ALL COLORS: " << i << "\n";
+    
+    for (int j = 0; j<allColors.size(); j++){
+        rectangle(colorMapMat, Point( j, 0 ), Point((j+1), colorMapMat.rows), allColors.at(j),FILLED);
+    }
+    
     double scale = limite/colorMapSizeW;
     
     Mat colorMapResult;
@@ -306,10 +313,11 @@ void colorMap(Scalar color[], int limite){
     cout << "\n R: " << r << "\n";
     resize(colorMapMat,colorMapResult,r);
     string wName = "MAPA DE COLOR";
-    namedWindow(wName, CV_WINDOW_AUTOSIZE);
+    namedWindow(wName, WINDOW_AUTOSIZE);
     imshow(wName, colorMapResult);
     
-    String colorMapSavePath ="/Users/mipapamedijo/PROYECTOS/PROGRAMAS/AnimationMetrics/04_ColorMaps/"+movieName+".jpg";
+    String colorMapSavePath = dataFolder+"Maps/"+movieName+"_colormap.jpg";
+    cout << "\n"+colorMapSavePath+"\n";
     
     imwrite(colorMapSavePath, colorMapResult);
     
@@ -323,7 +331,7 @@ void mapColorDistances(Scalar color[]){
     
     double distance;
     double normDistance;
-    double colorAverage;
+    double colorAverage = 0.0;
     Scalar colorSTDev;
     
     int b1,b2,g1,g2,r1,r2;
@@ -357,12 +365,12 @@ void mapColorDistances(Scalar color[]){
         
         
         double sqrDistance = abs((b2-b1)*(b2-b1))+
-                             abs((g2-g1)*(g2-g1))+
-                             abs((r2-r1)*(r2-r1));
+        abs((g2-g1)*(g2-g1))+
+        abs((r2-r1)*(r2-r1));
         
-         cout << "\n Valor <B^2> en i - (i-1) : " << abs((b2-b1)*(b2-b1)) << "\n";
+        cout << "\n Valor <B^2> en i - (i-1) : " << abs((b2-b1)*(b2-b1)) << "\n";
         
-         cout << "\n DISTANCIA DE COLOR CUADRADA EN i - (i-1) <B,G,R> : " << sqrDistance << "\n";
+        cout << "\n DISTANCIA DE COLOR CUADRADA EN i - (i-1) <B,G,R> : " << sqrDistance << "\n";
         
         distance = sqrt(sqrDistance);
         normDistance = norm(distance);
@@ -393,8 +401,10 @@ void mapColorDistances(Scalar color[]){
 
 void getClusteredColors(int i, int totalFrames){
     
-    imgPath = "/Users/mipapamedijo/PROYECTOS/PROGRAMAS/AnimationMetrics/02_ImageFrames/"+movieName+"/frame_"+to_string(i)+".jpg";
-    sColorsPath = "/Users/mipapamedijo/PROYECTOS/PROGRAMAS/AnimationMetrics/00_Data_Output/02_ColorPaletes/"+movieName+"/Color_"+to_string(i)+".jpg";
+    
+    imgPath = dataFolder+"02_ImageFrames/"+movieName+"/frame_"+to_string(i)+".jpg";
+    cout << imgPath;
+    sColorsPath = dataFolder+"00_Data_Output/02_ColorPaletes/"+movieName+"/Color_"+to_string(i)+".jpg";
     
     
     Mat img = imread(imgPath);
@@ -413,12 +423,12 @@ void getClusteredColors(int i, int totalFrames){
     Mat bluredImg;
     blur(img,bluredImg,Size(1,1));
     Mat samples = bluredImg.reshape(1, img.total());
-
+    
     
     int attempts = 5 ;
-    Mat labels, data, centers, clustered; 
+    Mat labels, data, centers, clustered;
     
-    kmeans(samples, clusterCount, labels,TermCriteria(CV_TERMCRIT_EPS, 10 , 0.5), attempts, KMEANS_RANDOM_CENTERS, centers);
+    kmeans(samples, clusterCount, labels,TermCriteria(1, 10 , 0.5), attempts, KMEANS_RANDOM_CENTERS, centers);
     
     centers = centers.reshape(3,0);
     labels = labels.reshape(1,img.rows);
@@ -427,10 +437,10 @@ void getClusteredColors(int i, int totalFrames){
     Scalar color;
     Scalar colorArray[clusterCount];
     Mat rectangulos;
-
+    
     for (int i=0; i<centers.rows; i++){
         color = centers.at<Vec3f>(i);
-
+        
         colorArray[i] = centers.at<Vec3f>(i);
         cout << "Valor de color en "<<(i)<<" : "<< color <<" \n";
         cout << "Color guardado: "<<colorArray[i]<<" en "<<i<<"\n";
@@ -442,16 +452,16 @@ void getClusteredColors(int i, int totalFrames){
         String colorRGB = to_string(colorR) + "," + to_string(colorG) + "," + to_string(colorB);
         cout << "\n" << colorRGB << "\n";
         
-    xmlPath = "/Users/mipapamedijo/PROYECTOS/PROGRAMAS/AnimationMetrics/00_Data_Output/XML/"+movieName+"_ColorData.xml";
+        xmlPath = dataFolder+"00_Data_Output/XML/"+movieName+"_ColorData.xml";
         
         try{
             xmlFile.open(xmlPath, FileStorage::APPEND);
             if (xmlFile.isOpened()){
-            xmlFile << "Color_RGB" <<  colorRGB;
-            xmlFile.release();
+                xmlFile << "Color_RGB" <<  colorRGB;
+                xmlFile.release();
             }
             else{
-            cout << "no se pudo abrir el XML.  \n";
+                cout << "no se pudo abrir el XML.  \n";
             }
         }
         catch (runtime_error& ex){
@@ -459,7 +469,7 @@ void getClusteredColors(int i, int totalFrames){
         }
     }
     
-    csvPath = "/Users/mipapamedijo/PROYECTOS/PROGRAMAS/AnimationMetrics/00_Data_Output/CSV/"+movieName+"_ColorData.csv";
+    csvPath = dataFolder+"00_Data_Output/CSV/"+movieName+"_ColorData.csv";
     
     ofstream tvsFile;
     try{
@@ -473,10 +483,10 @@ void getClusteredColors(int i, int totalFrames){
         else  cout << "no se pudo abrir el CSV.  \n";
     }
     catch (runtime_error& ex){
-         cout << "Error al escribir la información de color en CSV.  \n";
+        cout << "Error al escribir la información de color en CSV.  \n";
     }
     
-
+    
     rectangulos = drawColors(colorArray, clusterCount);
     colorMap(colorArray, totalFrames);
     mapColorDistances(colorArray);
@@ -499,7 +509,7 @@ void getClusteredColors(int i, int totalFrames){
     }
     
     //waitKey(0);
-
+    
 }
 
 //END OF PROCESS //
